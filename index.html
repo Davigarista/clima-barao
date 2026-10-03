@@ -414,6 +414,14 @@ const INDISPONIVEL = { cor: "#8a96a3", fundo: "#eceff3", texto: "#3a4652" };
 
 const $ = (id) => document.getElementById(id);
 
+// Busca com limite de tempo: se a fonte não responder em 15 s, desiste e mostra aviso
+async function buscar(url, ms = 15000) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), ms);
+  try { return await fetch(url, { signal: ctl.signal, cache: "no-store" }); }
+  finally { clearTimeout(t); }
+}
+
 function nivelDe(aviso) {
   return NIVEIS[aviso.severidade] || { ordem: 1, ...NIVEIS["Perigo Potencial"] };
 }
@@ -468,7 +476,7 @@ function definirStatus(tema, titulo, texto) {
 
 async function carregarAlertas() {
   try {
-    const r = await fetch("https://apiprevmet3.inmet.gov.br/avisos/ativos");
+    const r = await buscar("https://apiprevmet3.inmet.gov.br/avisos/ativos");
     if (!r.ok) throw new Error("INMET respondeu " + r.status);
     const dados = await r.json();
     const hoje = (dados.hoje || []).filter(ehDaCidade);
@@ -495,6 +503,7 @@ async function carregarAlertas() {
     $("alertas").innerHTML = html || `<p class="vazio">Nenhum alerta do INMET para Barão de Cocais.</p>`;
     pintarIcones();
   } catch (e) {
+    console.error("Alertas INMET:", e);
     definirStatus(INDISPONIVEL, "Alertas indisponíveis",
       "Não foi possível consultar o INMET agora. Tente de novo em alguns minutos.");
     $("alertas").innerHTML = `<p class="vazio">Consulte diretamente no
@@ -521,7 +530,8 @@ async function carregarPrevisao() {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
       `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum` +
       `&timezone=America%2FSao_Paulo&forecast_days=5`;
-    const r = await fetch(url);
+    const r = await buscar(url);
+    if (!r.ok) throw new Error("Open-Meteo respondeu " + r.status);
     const d = (await r.json()).daily;
     $("previsao").innerHTML = d.time.map((dia, i) => {
       const nome = i === 0 ? "Hoje" : new Date(dia + "T12:00:00")
@@ -537,6 +547,7 @@ async function carregarPrevisao() {
     }).join("");
     pintarIcones();
   } catch (e) {
+    console.error("Previsão Open-Meteo:", e);
     $("previsao").innerHTML = `<p class="vazio">Previsão indisponível no momento.</p>`;
   }
 }
