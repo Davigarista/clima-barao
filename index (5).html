@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoramento Climático · Barão de Cocais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdngovbr-ds.estaleiro.serpro.gov.br/design-system/fonts/rawline/css/rawline.css" rel="stylesheet">
+<style>
+  :root {
+    /* Paleta Secom / Prefeitura de Barão de Cocais */
+    --azul: #071877;            /* gradiente-inicio */
+    --azul-vivo: #2839B7;       /* gradiente-fim */
+    --azul-bruma: #B3D2E4;      /* azul-bruma */
+    --escuro-inicio: #001236;   /* fundo-escuro-inicio */
+    --escuro-fim: #003C81;      /* fundo-escuro-fim */
+    --amarelo-inicio: #E69E30;  /* gradiente-amarelo */
+    --amarelo-fim: #EDBD4E;
+    --texto: #0f1a3a;
+    --texto-suave: #55617a;
+    --fundo: #F8FAFC;           /* fundo-pagina */
+    --cartao: #ffffff;
+    --suave-azul: #E8F1F7;      /* azul-bruma clareado */
+    --linha: #e3e9f0;
+    --raio: 20px;
+    --sombra: 0 2px 12px rgba(7, 24, 119, .07);
+    --status-fundo: #e5f5ec;
+    --status-texto: #14532d;
+    --status-destaque: #22a05a;
+  }
+  [data-lucide] { width: 1em; height: 1em; vertical-align: -.12em; stroke-width: 2.2; }
+  h2 .ico { color: var(--azul); margin-right: .45rem; }
+  h2 { display: flex; align-items: center; }
+  .indice a .ico { margin-right: .3rem; }
+  .indice a { display: inline-flex; align-items: center; }
+  .telefone h3 { display: flex; align-items: center; gap: .4rem; }
+  .telefone h3 .ico { color: var(--azul); }
+  .contato-defesa a .ico, .barragem-btn .ico { margin-right: .4rem; vertical-align: -.15em; }
+  .clima-ico { color: var(--azul-vivo); margin: 2px 0 6px; }
+  .clima-ico [data-lucide] { width: 34px; height: 34px; stroke-width: 1.8; }
+  .camera .icone [data-lucide] { width: 22px; height: 22px; color: var(--azul); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Rawline", "Segoe UI", system-ui, sans-serif;
+    color: var(--texto);
+    background: var(--fundo);
+    line-height: 1.5;
+  }
+  h1, h2, h3 { font-family: "Exo", "Segoe UI", sans-serif; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--amarelo-inicio); outline-offset: 3px; border-radius: 8px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+
+  header {
+    background: linear-gradient(120deg, var(--escuro-inicio), var(--escuro-fim));
+    padding: 22px 0; margin-bottom: 4px;
+  }
+  header .wrap { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header strong { font-family: "Exo", sans-serif; font-weight: 700; color: #fff; font-size: 1.05rem; }
+  header span {
+    font-size: .85rem; font-weight: 700; color: var(--escuro-inicio);
+    background: linear-gradient(120deg, var(--amarelo-inicio), var(--amarelo-fim));
+    padding: 6px 14px; border-radius: 999px;
+  }
+
+  .status {
+    background: var(--status-fundo);
+    color: var(--status-texto);
+    border-radius: 28px;
+    padding: 36px 32px;
+    margin: 12px 0 8px;
+    position: relative;
+    overflow: hidden;
+    transition: background .4s ease, color .4s ease;
+  }
+  .status::before {
+    content: ""; position: absolute; right: -60px; top: -60px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: var(--status-destaque); opacity: .14;
+  }
+  .status .cidade {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: .95rem; font-weight: 600;
+  }
+  .status .cidade::before {
+    content: ""; width: 10px; height: 10px; border-radius: 50%;
+    background: var(--status-destaque);
+  }
+  .status h1 {
+    font-size: clamp(1.9rem, 5.5vw, 3.2rem);
+    font-weight: 800; line-height: 1.08;
+    margin: 10px 0 12px; position: relative;
+  }
+  .status p { font-size: 1.05rem; max-width: 60ch; position: relative; }
+  .status .atualizado { margin-top: 16px; font-size: .85rem; opacity: .75; }
+
+  section { padding: 28px 0 8px; }
+  section h2 { font-size: 1.3rem; font-weight: 700; color: var(--azul); margin-bottom: 2px; }
+  section .sub { color: var(--texto-suave); margin-bottom: 16px; font-size: .95rem; }
+
+  .alerta {
+    background: var(--fundo-alerta, #fff8db);
+    border-radius: var(--raio);
+    padding: 20px 22px;
+    margin-bottom: 12px;
+  }
+  .alerta h3 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .alerta h3::before {
+    content: ""; flex: none; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--cor, #f2c500);
+  }
+  .alerta .periodo { color: var(--texto-suave); font-size: .92rem; margin: 4px 0 8px 22px; }
+  details { margin: 8px 0 0 22px; background: rgba(255,255,255,.65); border-radius: 12px; padding: 10px 14px; }
+  summary { cursor: pointer; font-weight: 600; color: var(--azul); }
+  details p { margin-top: 8px; font-size: .93rem; }
+  .vazio {
+    color: var(--texto-suave); background: var(--cartao);
+    border-radius: var(--raio); padding: 18px 22px; box-shadow: var(--sombra);
+  }
+
+  .dias { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .dia { background: var(--cartao); border-radius: var(--raio); padding: 18px; box-shadow: var(--sombra); }
+  .dia .nome { font-family: "Exo", sans-serif; font-weight: 700; color: var(--azul); }
+  .dia .temp { font-family: "Exo", sans-serif; font-size: 1.7rem; font-weight: 800; margin: 4px 0; }
+  .dia .temp small { font-size: 1rem; font-weight: 600; color: var(--texto-suave); }
+  .dia .info { font-size: .88rem; color: var(--texto-suave); }
+  .chuva {
+    display: inline-block; margin-top: 8px; font-size: .82rem; font-weight: 600;
+    color: var(--azul); background: var(--suave-azul); padding: 3px 10px; border-radius: 999px;
+  }
+
+  .carrossel { position: relative; }
+  .cameras {
+    display: flex; gap: 16px; overflow-x: auto;
+    scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    padding: 4px 4px 14px; margin: 0 -4px;
+    scrollbar-width: thin; scrollbar-color: var(--azul-bruma) transparent;
+  }
+  .cameras::-webkit-scrollbar { height: 6px; }
+  .cameras::-webkit-scrollbar-thumb { background: var(--azul-bruma); border-radius: 99px; }
+  /* largura pensada para sempre cortar o próximo cartão */
+  .camera-ao-vivo { flex: 0 0 82%; scroll-snap-align: start; }
+  @media (min-width: 640px) { .camera-ao-vivo { flex-basis: 46%; } }
+  @media (min-width: 960px) { .camera-ao-vivo { flex-basis: 38%; } }
+  .seta {
+    position: absolute; top: calc(50% - 30px); z-index: 2;
+    width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+    display: grid; place-items: center;
+    background: #fff; color: var(--azul); box-shadow: 0 4px 14px rgba(7,24,119,.18);
+    transition: opacity .2s;
+  }
+  .seta.ant { left: -8px; } .seta.prox { right: -8px; }
+  .seta[disabled] { opacity: 0; pointer-events: none; }
+  @media (hover: none) { .seta { display: none; } }
+  .camera-ao-vivo { background: var(--cartao); border-radius: var(--raio); box-shadow: var(--sombra); overflow: hidden; }
+  .camera-ao-vivo .video { position: relative; aspect-ratio: 16 / 9; background: var(--escuro-inicio); }
+  .camera-ao-vivo iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .camera-ao-vivo .legenda { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; }
+  .camera-ao-vivo .legenda .ico { color: var(--azul); margin-right: .4rem; }
+  .camera-ao-vivo .legenda strong { font-family: "Exo", sans-serif; color: var(--azul); }
+  .camera-ao-vivo .legenda span { display: block; font-size: .82rem; color: var(--texto-suave); margin-left: 1.45rem; }
+  .camera-ao-vivo .legenda a { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--suave-azul); color: var(--azul); }
+  .camera-ao-vivo .legenda a:hover { background: var(--azul-bruma); }
+  .camera {
+    display: flex; align-items: center; gap: 14px; text-decoration: none;
+    background: var(--cartao); border-radius: var(--raio); padding: 16px 18px;
+    box-shadow: var(--sombra); transition: background .2s;
+  }
+  .camera:hover { background: var(--suave-azul); }
+  .camera .icone {
+    flex: none; width: 44px; height: 44px; border-radius: 14px;
+    background: var(--suave-azul); display: grid; place-items: center;
+  }
+  .camera .icone::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: #e0393e; }
+  .camera strong { font-family: "Exo", sans-serif; display: block; font-size: 1rem; color: var(--azul); }
+  .camera span { font-size: .87rem; color: var(--texto-suave); }
+
+  .emergencia { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .emergencia div { background: var(--suave-azul); border-radius: var(--raio); padding: 18px 20px; font-size: .92rem; }
+  .emergencia div strong { font-family: "Exo", sans-serif; font-size: 1.8rem; color: var(--azul); display: block; line-height: 1.1; }
+
+
+  /* Barragens */
+  .barragens { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .barragem-btn {
+    display: block; text-decoration: none;
+    background: var(--cartao); border-radius: var(--raio); padding: 18px 20px;
+    box-shadow: var(--sombra); transition: background .2s;
+  }
+  .barragem-btn:hover { background: var(--suave-azul); }
+  .barragem-btn strong { font-family: "Exo", sans-serif; display: block; font-size: 1.05rem; color: var(--azul); }
+  .barragem-btn span { font-size: .9rem; color: var(--texto-suave); display: block; margin-top: 4px; }
+  .painel-barragem .sirene {
+    background: var(--cartao); border-radius: var(--raio); padding: 16px 20px;
+    box-shadow: var(--sombra); border-left: 5px solid var(--amarelo-inicio);
+    margin-bottom: 12px; font-size: .92rem; color: var(--texto);
+  }
+  .painel-barragem .sirene strong { font-family: "Exo", sans-serif; display: block; margin-bottom: 4px; color: var(--azul); }
+  .painel-barragem .sirene .ico { color: var(--amarelo-inicio); margin-right: .4rem; vertical-align: -.15em; }
+  .contato-defesa { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .contato-defesa a {
+    display: block; text-decoration: none;
+    background: var(--cartao); border-radius: var(--raio); padding: 16px 18px; box-shadow: var(--sombra);
+    transition: background .2s;
+  }
+  .contato-defesa a:hover { background: var(--suave-azul); }
+  .contato-defesa strong { font-family: "Exo", sans-serif; color: var(--azul); display: block; }
+  .contato-defesa span { font-size: .9rem; color: var(--texto-suave); }
+
+  /* Índice */
+  .indice {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(248, 250, 252, .92); backdrop-filter: blur(8px);
+    padding: 10px 0;
+  }
+  .indice .wrap { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  .indice .wrap::-webkit-scrollbar { display: none; }
+  .indice a {
+    flex: none; text-decoration: none; font-size: .88rem; font-weight: 600;
+    color: var(--azul); background: var(--cartao); box-shadow: var(--sombra);
+    padding: 8px 16px; border-radius: 999px; transition: background .2s;
+  }
+  .indice a:hover { background: var(--azul-bruma); }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+
+  /* Telefones */
+  .telefones { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .telefone {
+    background: var(--cartao); border-radius: var(--raio); padding: 18px 20px; box-shadow: var(--sombra);
+  }
+  .telefone h3 { font-size: 1.05rem; color: var(--azul); margin-bottom: 10px; }
+  .telefone .numeros { display: flex; flex-wrap: wrap; gap: 8px; }
+  .telefone a {
+    text-decoration: none; font-family: "Exo", sans-serif; font-weight: 700; font-size: 1.05rem;
+    background: linear-gradient(120deg, var(--amarelo-inicio), var(--amarelo-fim));
+    color: var(--escuro-inicio); padding: 8px 14px; border-radius: 12px;
+    transition: filter .2s;
+  }
+  .telefone a:hover { filter: brightness(1.06); }
+  .telefone a.curto { font-size: 1.3rem; padding: 6px 16px; }
+
+  footer {
+    margin-top: 28px; padding: 24px 0 32px; font-size: .82rem;
+    color: var(--azul-bruma);
+    background: linear-gradient(120deg, var(--escuro-inicio), var(--escuro-fim));
+  }
+
+  @media (max-width: 520px) { .status { padding: 28px 22px; border-radius: 22px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <strong>Prefeitura de Barão de Cocais</strong>
+    <span>Monitoramento Climático</span>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Seções da página">
+  <div class="wrap">
+    <a href="#alertas-secao"><i data-lucide="triangle-alert" class="ico"></i>Alertas</a>
+    <a href="#previsao-secao"><i data-lucide="cloud-sun" class="ico"></i>Previsão</a>
+    <a href="#cameras-secao"><i data-lucide="video" class="ico"></i>Câmeras</a>
+    <a href="#telefones-secao"><i data-lucide="phone" class="ico"></i>Telefones</a>
+    <a href="#defesa-secao"><i data-lucide="shield" class="ico"></i>Defesa Civil</a>
+    <a href="#barragens-secao"><i data-lucide="siren" class="ico"></i>Barragens</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="status" id="status">
+    <div class="cidade">Barão de Cocais, agora</div>
+    <h1 id="status-titulo">Carregando…</h1>
+    <p id="status-texto">Consultando os alertas oficiais do INMET.</p>
+    <div class="atualizado" id="atualizado"></div>
+  </div>
+</div>
+
+<main>
+  <section id="alertas-secao">
+    <div class="wrap">
+      <h2><i data-lucide="triangle-alert" class="ico"></i>Alertas para a cidade</h2>
+      <p class="sub">Avisos oficiais do INMET válidos hoje e nos próximos dias.</p>
+      <div id="alertas"></div>
+    </div>
+  </section>
+
+  <section id="previsao-secao">
+    <div class="wrap">
+      <h2><i data-lucide="cloud-sun" class="ico"></i>Previsão dos próximos dias</h2>
+      <p class="sub">Temperatura e chance de chuva em Barão de Cocais.</p>
+      <div class="dias" id="previsao"></div>
+    </div>
+  </section>
+
+  <section id="cameras-secao">
+    <div class="wrap">
+      <h2><i data-lucide="video" class="ico"></i>Câmeras ao vivo</h2>
+      <p class="sub">Acompanhe os pontos da cidade sujeitos a alagamento.</p>
+      <div class="carrossel">
+        <button class="seta ant" type="button" aria-label="Câmera anterior"><i data-lucide="chevron-left"></i></button>
+        <div class="cameras" id="cameras"></div>
+        <button class="seta prox" type="button" aria-label="Próxima câmera"><i data-lucide="chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="telefones-secao">
+    <div class="wrap">
+      <h2><i data-lucide="phone-call" class="ico"></i>Telefones de emergência</h2>
+      <p class="sub">Toque no número para ligar.</p>
+      <div class="telefones">
+        <div class="telefone">
+          <h3><i data-lucide="shield-check" class="ico"></i>Polícia Militar</h3>
+          <div class="numeros"><a href="tel:190" class="curto">190</a> <a href="tel:+553138371843">(31) 3837-1843</a></div>
+        </div>
+        <div class="telefone">
+          <h3><i data-lucide="ambulance" class="ico"></i>SAMU</h3>
+          <div class="numeros"><a href="tel:192" class="curto">192</a></div>
+        </div>
+        <div class="telefone">
+          <h3><i data-lucide="flame" class="ico"></i>Corpo de Bombeiros</h3>
+          <div class="numeros"><a href="tel:193" class="curto">193</a></div>
+        </div>
+        <div class="telefone">
+          <h3><i data-lucide="shield" class="ico"></i>Defesa Civil</h3>
+          <div class="numeros"><a href="tel:199" class="curto">199</a> <a href="tel:+553138377651">(31) 3837-7651</a></div>
+        </div>
+        <div class="telefone">
+          <h3><i data-lucide="cross" class="ico"></i>UPA</h3>
+          <div class="numeros"><a href="tel:+553138377672">(31) 3837-7672</a></div>
+        </div>
+        <div class="telefone">
+          <h3><i data-lucide="ambulance" class="ico"></i>SAMUB</h3>
+          <div class="numeros"><a href="tel:+5531996480740">(31) 99648-0740</a></div>
+        </div>
+        <div class="telefone">
+          <h3><i data-lucide="life-buoy" class="ico"></i>GRVE · Grupo de Resgate Voluntário</h3>
+          <div class="numeros"><a href="tel:+553195260142">(31) 9526-0142</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="defesa-secao">
+    <div class="wrap">
+      <h2><i data-lucide="shield" class="ico"></i>Defesa Civil de Barão de Cocais</h2>
+      <p class="sub">Fale com a Defesa Civil municipal ou receba alertas no celular.</p>
+      <div class="contato-defesa">
+        <a href="https://api.whatsapp.com/send/?phone=553138377651" target="_blank" rel="noopener"><strong><i data-lucide="message-circle" class="ico"></i>WhatsApp</strong><span>Chamar a Defesa Civil</span></a>
+        <a href="https://linktr.ee/defesacivilbc" target="_blank" rel="noopener"><strong><i data-lucide="link" class="ico"></i>Links e redes</strong><span>Canais oficiais</span></a>
+        <a href="sms:40199"><strong><i data-lucide="smartphone" class="ico"></i>SMS 40199</strong><span>Envie seu CEP e receba alertas</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="barragens-secao">
+    <div class="wrap">
+      <h2><i data-lucide="siren" class="ico"></i>Segurança de barragens</h2>
+      <p class="sub">Barragem Sul Superior — Mina de Gongo Soco. Consulte o nível de emergência na fonte oficial.</p>
+      <div class="painel-barragem">
+        <div class="sirene">
+          <strong><i data-lucide="siren" class="ico"></i>Em emergência, a sirene manda.</strong> Se a sirene da Vale tocar, não espere confirmação na internet: siga imediatamente a rota de fuga e as orientações da Defesa Civil.
+        </div>
+        <div class="barragens">
+          <a class="barragem-btn" href="https://sigbm.anm.gov.br/Publico" target="_blank" rel="noopener">
+            <strong><i data-lucide="landmark" class="ico"></i>SIGBM · Agência Nacional de Mineração</strong>
+            <span>Órgão fiscalizador. Nível de emergência atualizado em tempo real.</span>
+          </a>
+          <a class="barragem-btn" href="https://www.vale.com/baraodecocais" target="_blank" rel="noopener">
+            <strong><i data-lucide="mountain" class="ico"></i>Vale · Barão de Cocais</strong>
+            <span>Informações da mineradora sobre a barragem e a descaracterização.</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Alertas: Instituto Nacional de Meteorologia (INMET). Previsão: Open-Meteo.
+    Página atualizada automaticamente a cada 10 minutos.
+  </div>
+</footer>
+
+<script>
+/* ============ CONFIGURAÇÃO — edite aqui ============ */
+const CIDADE_IBGE = "3105400";          // Barão de Cocais
+const LAT = -19.9486, LON = -43.4894;
+
+// Troque pelos nomes e links reais das câmeras
+const CAMERAS = [
+  // Câmeras FullCam (mesmas da matéria oficial)
+  { nome: "Câmera 1", local: "Rua São Manoel | Rua Padre Teles", url: "https://cloud.fullcam.me/#/cembed/f9d1251a6a8ebdfb59e5d51b6f5feb015c768c0051339f39fa0c3329ae6102bded668668f4630085e83d32deabb4" },
+  { nome: "Câmera 2", local: "Centro", url: "https://cloud.fullcam.me/#/cembed/9f10714abe00b87108041e3eb223bd8eb8f41dba263f734529e519de5e73a59afc8c13a7e3d33a11a47ec3c1aa8a" },
+  { nome: "Câmera 3", local: "Ponte Paixão", url: "https://cloud.fullcam.me/#/cembed/e9ffa34687143729df93d1c9a249526d20a6e56580d34974a670fdc91868df2e42873c7b22ec7d302892238b2a7e" },
+  { nome: "Câmera 4", local: "Córrego Corta Goela", url: "https://cloud.fullcam.me/#/cembed/96d808ed32d2d1aebb3276e17eb901ae044b87ea288d55fbf995bfaca7c7eed62fd2563a1f17ddcab3218cc2f721" },
+  { nome: "Câmera 5", local: "Min. Clóvis Salgado", url: "https://cloud.fullcam.me/#/cembed/ed0f659843cab0b614a5b204671103ac8e920b0fcec64b5b997153771e1cb8e1837795d8177941d85a33c3afc81b" },
+];
+/* =================================================== */
+
+const NIVEIS = {
+  "Grande Perigo":    { ordem: 3, cor: "#d92d3a", fundo: "#fde7e8", texto: "#7a1219" },
+  "Perigo":           { ordem: 2, cor: "#ec7a1c", fundo: "#fdeedf", texto: "#7a3a06" },
+  "Perigo Potencial": { ordem: 1, cor: "#e8b800", fundo: "#fff6d6", texto: "#6b5400" },
+};
+const SEM_ALERTA = { cor: "#22a05a", fundo: "#e5f5ec", texto: "#14532d" };
+const INDISPONIVEL = { cor: "#8a96a3", fundo: "#eceff3", texto: "#3a4652" };
+
+const $ = (id) => document.getElementById(id);
+
+function nivelDe(aviso) {
+  return NIVEIS[aviso.severidade] || { ordem: 1, ...NIVEIS["Perigo Potencial"] };
+}
+
+function ehDaCidade(aviso) {
+  const geo = String(aviso.geocodes || "");
+  const mun = String(aviso.municipios || "");
+  return geo.includes(CIDADE_IBGE) || mun.includes("Barão de Cocais");
+}
+
+function formatarData(data, hora) {
+  if (!data) return "";
+  const d = new Date(`${String(data).slice(0, 10)}T${(hora || "00:00").slice(0, 5)}:00`);
+  if (isNaN(d)) return `${data} ${hora || ""}`.trim();
+  return d.toLocaleString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+function periodo(a) {
+  const ini = formatarData(a.data_inicio || a.inicio, a.hora_inicio);
+  const fim = formatarData(a.data_fim || a.fim, a.hora_fim);
+  return ini && fim ? `De ${ini} até ${fim}` : "";
+}
+
+function textoLista(v) {
+  if (Array.isArray(v)) return v.join(" ");
+  return v ? String(v) : "";
+}
+
+function cartaoAlerta(a, quando) {
+  const n = nivelDe(a);
+  const riscos = textoLista(a.riscos);
+  const instrucoes = textoLista(a.instrucoes);
+  return `
+    <div class="alerta" style="--cor:${n.cor}; --fundo-alerta:${n.fundo}">
+      <h3>${a.severidade || "Aviso"}: ${a.descricao || "Alerta meteorológico"}</h3>
+      <div class="periodo">${quando}${periodo(a) ? " · " + periodo(a) : ""}</div>
+      ${riscos ? `<details><summary>Quais são os riscos</summary><p>${riscos}</p></details>` : ""}
+      ${instrucoes ? `<details><summary>O que fazer</summary><p>${instrucoes}</p></details>` : ""}
+    </div>`;
+}
+
+function definirStatus(tema, titulo, texto) {
+  const s = $("status");
+  s.style.setProperty("--status-fundo", tema.fundo);
+  s.style.setProperty("--status-texto", tema.texto);
+  s.style.setProperty("--status-destaque", tema.cor);
+  $("status-titulo").textContent = titulo;
+  $("status-texto").textContent = texto;
+  $("atualizado").textContent = "Atualizado às " +
+    new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+async function carregarAlertas() {
+  try {
+    const r = await fetch("https://apiprevmet3.inmet.gov.br/avisos/ativos");
+    if (!r.ok) throw new Error("INMET respondeu " + r.status);
+    const dados = await r.json();
+    const hoje = (dados.hoje || []).filter(ehDaCidade);
+    const futuro = (dados.futuro || []).filter(ehDaCidade);
+    const ordenar = (lista) => lista.sort((a, b) => nivelDe(b).ordem - nivelDe(a).ordem);
+    ordenar(hoje); ordenar(futuro);
+
+    if (hoje.length) {
+      const pior = hoje[0], n = nivelDe(pior);
+      definirStatus(n,
+        `${pior.severidade}: ${pior.descricao}`,
+        hoje.length > 1
+          ? `Há ${hoje.length} alertas ativos hoje. Veja os detalhes e as orientações abaixo.`
+          : "Veja abaixo o período do alerta e as orientações de segurança.");
+    } else {
+      definirStatus(SEM_ALERTA, "Sem alertas para hoje",
+        futuro.length
+          ? "Nenhum aviso ativo agora, mas há alerta previsto para os próximos dias. Veja abaixo."
+          : "Nenhum aviso meteorológico do INMET para a cidade no momento.");
+    }
+
+    const html = hoje.map(a => cartaoAlerta(a, "Hoje")).join("") +
+                 futuro.map(a => cartaoAlerta(a, "Próximos dias")).join("");
+    $("alertas").innerHTML = html || `<p class="vazio">Nenhum alerta do INMET para Barão de Cocais.</p>`;
+    pintarIcones();
+  } catch (e) {
+    definirStatus(INDISPONIVEL, "Alertas indisponíveis",
+      "Não foi possível consultar o INMET agora. Tente de novo em alguns minutos.");
+    $("alertas").innerHTML = `<p class="vazio">Consulte diretamente no
+      <a href="https://alertas2.inmet.gov.br" target="_blank" rel="noopener">site de alertas do INMET</a>.</p>`;
+  }
+}
+
+const TEMPO = {
+  0: "Céu limpo", 1: "Poucas nuvens", 2: "Parcialmente nublado", 3: "Nublado",
+  45: "Neblina", 48: "Neblina", 51: "Garoa", 53: "Garoa", 55: "Garoa forte",
+  61: "Chuva fraca", 63: "Chuva", 65: "Chuva forte", 80: "Pancadas de chuva",
+  81: "Pancadas de chuva", 82: "Pancadas fortes", 95: "Tempestade", 96: "Tempestade com granizo", 99: "Tempestade com granizo",
+};
+
+const TEMPO_ICONE = {
+  0: "sun", 1: "sun", 2: "cloud-sun", 3: "cloud",
+  45: "cloud-fog", 48: "cloud-fog", 51: "cloud-drizzle", 53: "cloud-drizzle", 55: "cloud-drizzle",
+  61: "cloud-rain", 63: "cloud-rain", 65: "cloud-rain-wind", 80: "cloud-rain",
+  81: "cloud-rain", 82: "cloud-rain-wind", 95: "cloud-lightning", 96: "cloud-lightning", 99: "cloud-lightning",
+};
+
+async function carregarPrevisao() {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum` +
+      `&timezone=America%2FSao_Paulo&forecast_days=5`;
+    const r = await fetch(url);
+    const d = (await r.json()).daily;
+    $("previsao").innerHTML = d.time.map((dia, i) => {
+      const nome = i === 0 ? "Hoje" : new Date(dia + "T12:00:00")
+        .toLocaleDateString("pt-BR", { weekday: "long" }).replace(/^./, c => c.toUpperCase());
+      return `
+        <div class="dia">
+          <div class="nome">${nome}</div>
+          <div class="clima-ico"><i data-lucide="${TEMPO_ICONE[d.weather_code[i]] || 'cloud'}"></i></div>
+          <div class="temp">${Math.round(d.temperature_2m_max[i])}° <small>${Math.round(d.temperature_2m_min[i])}°</small></div>
+          <div class="info">${TEMPO[d.weather_code[i]] || "—"}</div>
+          <span class="chuva">Chuva ${d.precipitation_probability_max[i] ?? 0}% · ${d.precipitation_sum[i].toFixed(1)} mm</span>
+        </div>`;
+    }).join("");
+    pintarIcones();
+  } catch (e) {
+    $("previsao").innerHTML = `<p class="vazio">Previsão indisponível no momento.</p>`;
+  }
+}
+
+function montarCameras() {
+  $("cameras").innerHTML = CAMERAS.map(c => `
+    <div class="camera-ao-vivo">
+      <div class="video">
+        <iframe src="${c.url}" title="${c.nome} - ${c.local}" loading="lazy"
+          allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <div class="legenda">
+        <div><i data-lucide="video" class="ico"></i><strong>${c.local}</strong><span>${c.nome}</span></div>
+        <a href="${c.url}" target="_blank" rel="noopener" aria-label="Abrir ${c.local} em tela cheia"><i data-lucide="maximize-2"></i></a>
+      </div>
+    </div>`).join("");
+  pintarIcones();
+  const trilho = $("cameras");
+  const ant = document.querySelector(".seta.ant"), prox = document.querySelector(".seta.prox");
+  const passo = () => trilho.querySelector(".camera-ao-vivo").offsetWidth + 16;
+  const atualizarSetas = () => {
+    ant.disabled = trilho.scrollLeft < 10;
+    prox.disabled = trilho.scrollLeft + trilho.clientWidth >= trilho.scrollWidth - 10;
+  };
+  ant.onclick = () => trilho.scrollBy({ left: -passo() });
+  prox.onclick = () => trilho.scrollBy({ left: passo() });
+  trilho.addEventListener("scroll", atualizarSetas, { passive: true });
+  window.addEventListener("resize", atualizarSetas);
+  atualizarSetas();
+}
+
+function atualizar() { carregarAlertas(); carregarPrevisao(); }
+montarCameras();
+atualizar();
+setInterval(atualizar, 10 * 60 * 1000);
+</script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    // re-renderiza os ícones sempre que o conteúdo dinâmico muda
+    function pintarIcones(){ if (window.lucide) lucide.createIcons(); }
+    document.addEventListener('DOMContentLoaded', pintarIcones);
+  </script>
+</body>
+</html>
