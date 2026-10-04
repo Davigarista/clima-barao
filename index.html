@@ -414,6 +414,9 @@ const INDISPONIVEL = { cor: "#8a96a3", fundo: "#eceff3", texto: "#3a4652" };
 
 const $ = (id) => document.getElementById(id);
 
+// Desenha os ícones Lucide (fica aqui no início para estar disponível antes de montar as câmeras)
+function pintarIcones() { if (window.lucide) lucide.createIcons(); }
+
 // Busca com limite de tempo: se a fonte não responder em 15 s, desiste e mostra aviso
 async function buscar(url, ms = 15000) {
   const ctl = new AbortController();
@@ -587,7 +590,6 @@ setInterval(atualizar, 10 * 60 * 1000);
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script>
     // re-renderiza os ícones sempre que o conteúdo dinâmico muda
-    function pintarIcones(){ if (window.lucide) lucide.createIcons(); }
     document.addEventListener('DOMContentLoaded', pintarIcones);
   </script>
 </body>
